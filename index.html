@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dplyr verbs · intro + 50‑question quiz</title>
+    <!-- Google Font & styling -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f9fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .hero {
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 span {
+            background: #2563eb;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #475569;
+            margin-top: 0.75rem;
+            max-width: 700px;
+        }
+
+        .hero code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #eef2ff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #1e40af;
+        }
+
+        /* grid of verbs */
+        .verb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0 2rem;
+        }
+
+        .verb-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem 1.4rem 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9eef3;
+            transition: all 0.1s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .verb-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .verb-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .verb-name .paren {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .verb-sub {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 0.9rem;
+            border-bottom: 1px dashed #dbeafe;
+            padding-bottom: 0.6rem;
+        }
+
+        .verb-desc {
+            font-size: 0.95rem;
+            color: #334155;
+            margin-bottom: 1rem;
+            flex: 1;
+        }
+
+        .verb-example {
+            background: #f1f5f9;
+            padding: 0.7rem 0.9rem;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #0c4a6e;
+            white-space: nowrap;
+            overflow-x: auto;
+            border-left: 3px solid #2563eb;
+            margin-top: 0.25rem;
+        }
+
+        /* pipe highlight */
+        .pipe-section {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 24px;
+            padding: 2rem 2rem 1.8rem;
+            margin: 2.5rem 0 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .pipe-section h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .pipe-section h2 code {
+            background: #1e293b;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #93c5fd;
+        }
+
+        .pipe-code {
+            background: #1e293b;
+            padding: 1.5rem 1.6rem;
+            border-radius: 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #e2e8f0;
+            overflow-x: auto;
+            white-space: pre;
+            border: 1px solid #334155;
+        }
+
+        .pipe-code .pipe {
+            color: #facc15;
+            font-weight: 600;
+        }
+
+        .pipe-code .func {
+            color: #93c5fd;
+        }
+
+        .pipe-code .str {
+            color: #a5f3b0;
+        }
+
+        .pipe-code .comment {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .footnote {
+            font-size: 0.9rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .footnote code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #e2e8f0;
+            padding: 0.1rem 0.4rem;
+            border-radius: 12px;
+            color: #0f172a;
+        }
+
+        /* QUIZ SECTION (single question at a time) */
+        .quiz-section {
+            margin: 3.5rem 0 2rem;
+            background: white;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e9eef3;
+        }
+
+        .quiz-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quiz-section h2 .badge {
+            font-size: 1rem;
+            background: #2563eb;
+            color: white;
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .quiz-intro {
+            color: #475569;
+            margin-bottom: 2rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1.2rem;
+            font-size: 1rem;
+        }
+
+        .quiz-intro code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #eef2ff;
+            padding: 0.1rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        /* single‑question card */
+        .question-card {
+            background: #f8fafc;
+            border-radius: 22px;
+            padding: 2rem 2rem 1.8rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: 0.1s;
+        }
+
+        .question-card.correct-highlight {
+            border-left: 6px solid #16a34a;
+        }
+
+        .question-card.wrong-highlight {
+            border-left: 6px solid #dc2626;
+        }
+
+        .q-progress {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+        }
+
+        .q-text {
+            font-weight: 500;
+            font-size: 1.3rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .q-num {
+            font-family: 'JetBrains Mono', monospace;
+            background: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            white-space: nowrap;
+            margin-top: 0.2rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-left: 2.2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            font-size: 1rem;
+            background: white;
+            padding: 0.9rem 1.2rem;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: 0.07s;
+        }
+
+        .option:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .option input[type="radio"] {
+            accent-color: #2563eb;
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .feedback {
+            margin-left: 2.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.4rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 2rem;
+        }
+
+        .feedback.correct {
+            color: #15803d;
+        }
+
+        .feedback.wrong {
+            color: #b91c1c;
+        }
+
+        .quiz-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1.5px solid #cbd5e1;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border: 1.5px solid #2563eb;
+            color: white;
+            box-shadow: 0 4px 10px -2px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-primary:disabled {
+            background: #93c5fd;
+            border-color: #93c5fd;
+            color: white;
+        }
+
+        .score-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: #eef2ff;
+            padding: 0.6rem 1.4rem;
+            border-radius: 60px;
+            color: #1e40af;
+            white-space: nowrap;
+        }
+
+        .score-badge.completed {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .pipe-section {
+                padding: 1.5rem 1.2rem;
+            }
+
+            .pipe-code {
+                font-size: 0.75rem;
+                padding: 1.2rem;
+            }
+
+            .verb-name {
+                font-size: 1.4rem;
+            }
+
+            .quiz-section {
+                padding: 1.5rem 1rem;
+            }
+
+            .question-card {
+                padding: 1.4rem 1.2rem;
+            }
+
+            .options {
+                margin-left: 0;
+            }
+
+            .feedback {
+                margin-left: 0;
+            }
+
+            .q-text {
+                flex-direction: column;
+                gap: 0.3rem;
+                font-size: 1.1rem;
+            }
+
+            .quiz-nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="hero">
+        <h1>
+            dplyr verbs
+            <span>intro + quiz</span>
+        </h1>
+        <p>
+            The core <code>dplyr</code> verbs form a grammar of data manipulation.
+            Each verb does <strong>one thing</strong> well — and they chain together
+            with the pipe <code>%&gt;%</code> or <code>|&gt;</code>.
+        </p>
+    </div>
+
+    <!-- Grid of verbs -->
+    <div class="verb-grid">
+        <div class="verb-card">
+            <div class="verb-name">filter<span class="paren">()</span></div>
+            <div class="verb-sub">subset rows</div>
+            <div class="verb-desc">Keep rows that match a condition. Like <code>WHERE</code> in SQL.</div>
+            <div class="verb-example">filter(df, height &gt; 180)</div>
+        </div>
+        <div class="verb-card">
+            <div class="verb-name">select<span class="paren">()</span></div>
+            <div class="verb-sub">pick columns</div>
+            <div class="verb-desc">Choose variables by name or range. Drop the rest.</div>
+            <div class="verb-example">select(df, name, age, city)</div>
+        </div>
+        <div class="verb-card">
+            <div class="verb-name">mutate<span class="paren">()</span></div>
+            <div class="verb-sub">create / modify columns</div>
+            <div class="verb-desc">Add new variables or transform existing ones. Keeps all original columns.</div>
+            <div class="verb-example">mutate(df, bmi = weight / height^2)</div>
+        </div>
+        <div class="verb-card">
+            <div class="verb-name">arrange<span class="paren">()</span></div>
+            <div class="verb-sub">order rows</div>
+            <div class="verb-desc">Sort rows by one or more columns. Use <code>desc()</code> for descending.</div>
+            <div class="verb-example">arrange(df, age, desc(score))</div>
+        </div>
+        <div class="verb-card">
+            <div class="verb-name">summarize<span class="paren">()</span></div>
+            <div class="verb-sub">aggregate</div>
+            <div class="verb-desc">Reduce many rows to a single summary (or one per group).</div>
+            <div class="verb-example">summarize(df, mean_age = mean(age))</div>
+        </div>
+        <div class="verb-card">
+            <div class="verb-name">group_by<span class="paren">()</span></div>
+            <div class="verb-sub">group operations</div>
+            <div class="verb-desc">Split data into groups; affects verbs that follow (summarize, mutate, etc.).</div>
+            <div class="verb-example">group_by(df, department)</div>
+        </div>
+    </div>
+
+    <!-- pipe / chaining section -->
+    <div class="pipe-section">
+        <h2>
+            🔗 chain with pipes
+            <code>%&gt;%</code>
+            <code>|&gt;</code>
+        </h2>
+        <div class="pipe-code">
+<span class="comment"># using the magrittr pipe (classic dplyr style)</span>
+flights <span class="pipe">%&gt;%</span>
+  <span class="func">filter</span>(dest == <span class="str">"LAX"</span>) <span class="pipe">%&gt;%</span>
+  <span class="func">group_by</span>(carrier) <span class="pipe">%&gt;%</span>
+  <span class="func">summarise</span>(
+    avg_delay = <span class="func">mean</span>(dep_delay, na.rm = <span class="str">TRUE</span>),
+    count = <span class="func">n</span>()
+  ) <span class="pipe">%&gt;%</span>
+  <span class="func">arrange</span>(<span class="func">desc</span>(avg_delay))
+
+<span class="comment"># native pipe (R ≥ 4.1) works too</span>
+mtcars <span class="pipe">|&gt;</span>
+  <span class="func">filter</span>(cyl == 4) <span class="pipe">|&gt;</span>
+  <span class="func">select</span>(mpg, wt, hp) <span class="pipe">|&gt;</span>
+  <span class="func">mutate</span>(power_to_weight = hp / wt)</div>
+    </div>
+
+    <div class="footnote">
+        ⚡ <code>dplyr</code> verbs always take a data frame first, return a data frame.
+        Use <code>across()</code> inside <code>mutate()</code> or <code>summarise()</code> for multiple columns.
+    </div>
+
+    <!-- ========== QUIZ SECTION (one question at a time) ========== -->
+    <div class="quiz-section" id="quiz">
+        <h2>
+            📝 dplyr verbs quiz
+            <span class="badge">50 questions</span>
+        </h2>
+        <div class="quiz-intro">
+            Test your knowledge of <code>filter()</code>, <code>select()</code>, <code>mutate()</code>,
+            <code>arrange()</code>, <code>summarize()</code>, <code>group_by()</code> and the pipe.
+            Answer each question and click <strong>Next</strong> to continue. At the end you'll see your score.
+        </div>
+
+        <div id="quizContainer">
+            <!-- dynamic single question card goes here -->
+        </div>
+
+        <div class="quiz-nav" id="quizNav">
+            <div class="nav-group">
+                <button type="button" class="btn btn-primary" id="nextBtn">Next →</button>
+                <button type="button" class="btn btn-secondary" id="resetQuiz">🔄 Reset quiz</button>
+            </div>
+            <div class="score-badge" id="scoreDisplay">— / 50</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        // ---------- QUESTION BANK (50 questions) ----------
+        const questions = [
+            // 1-10 : filter & select basics
+            { q: "Which dplyr verb is used to subset rows based on a condition?", options: ["select()", "filter()", "mutate()", "arrange()"], correct: 1 },
+            { q: "What does `select()` do?", options: ["Filters rows", "Orders rows", "Picks columns", "Creates new columns"], correct: 2 },
+            { q: "Which verb would you use to keep only rows where `age > 30`?", options: ["filter(age > 30)", "select(age > 30)", "mutate(age > 30)", "arrange(age > 30)"], correct: 0 },
+            { q: "How do you select columns `name` and `score` from a data frame?", options: ["filter(df, name, score)", "select(df, name, score)", "mutate(df, name, score)", "pull(df, name, score)"], correct: 1 },
+            { q: "What does `filter(df, species == 'setosa')` return?", options: ["All columns, only setosa rows", "Only the species column", "All rows, only species column", "Summary of setosa"], correct: 0 },
+            { q: "Which helper function is used to drop columns in `select()`?", options: ["-", "!", "drop()", "remove()"], correct: 0 },
+            { q: "What does `select(df, -c(id, date))` do?", options: ["Selects id and date", "Drops id and date", "Filters id and date", "Renames id and date"], correct: 1 },
+            { q: "Which verb would you use to remove rows with missing values?", options: ["filter(!is.na(x))", "select(!is.na(x))", "mutate(!is.na(x))", "arrange(!is.na(x))"], correct: 0 },
+            { q: "What does `filter(df, x > 5, y < 10)` do?", options: ["x > 5 OR y < 10", "x > 5 AND y < 10", "x > 5 XOR y < 10", "Error"], correct: 1 },
+            { q: "Which verb can be used to pick columns by name range (e.g., `a:c`)?", options: ["filter()", "select()", "mutate()", "summarise()"], correct: 1 },
+
+            // 11-20 : mutate & arrange
+            { q: "Which verb creates new columns or modifies existing ones?", options: ["filter()", "select()", "mutate()", "arrange()"], correct: 2 },
+            { q: "What does `mutate(df, total = a + b)` do?", options: ["Adds a new column `total`", "Filters rows where a+b", "Sorts by a+b", "Groups by a+b"], correct: 0 },
+            { q: "Which function would you use to sort rows by `score` ascending?", options: ["arrange(score)", "sort(score)", "order(score)", "filter(score)"], correct: 0 },
+            { q: "How do you sort by `score` descending?", options: ["arrange(desc(score))", "arrange(score, desc)", "desc(arrange(score))", "arrange(-score)"], correct: 0 },
+            { q: "What does `mutate(df, double = x * 2)` do to existing columns?", options: ["Removes x", "Keeps all existing columns", "Only keeps double", "Reorders columns"], correct: 1 },
+            { q: "If you use `mutate()` after `group_by()`, what happens?", options: ["Error", "Operations are per group", "Groups are ignored", "Only one row per group"], correct: 1 },
+            { q: "Which verb would you use to reorder rows by multiple columns?", options: ["filter()", "select()", "mutate()", "arrange()"], correct: 3 },
+            { q: "What is the result of `arrange(df, desc(age), name)`?", options: ["Sort by age descending, then name ascending", "Sort by age ascending, then name descending", "Sort by name descending", "Error"], correct: 0 },
+            { q: "Which verb keeps all rows and columns while adding a new variable?", options: ["filter()", "select()", "mutate()", "summarise()"], correct: 2 },
+            { q: "Can `mutate()` overwrite an existing column?", options: ["Yes", "No", "Only with `overwrite=TRUE`", "Only in `summarise()`"], correct: 0 },
+
+            // 21-30 : summarise & group_by
+            { q: "Which verb reduces multiple rows to a single summary?", options: ["filter()", "select()", "mutate()", "summarise()"], correct: 3 },
+            { q: "What does `summarise(df, avg = mean(x))` return?", options: ["One row with avg", "All rows with avg", "Only avg column", "Error"], correct: 0 },
+            { q: "Which function computes the number of rows per group?", options: ["n()", "count()", "n_distinct()", "row_number()"], correct: 0 },
+            { q: "What does `group_by(df, dept)` do?", options: ["Sorts by dept", "Filters by dept", "Splits data into groups", "Removes dept"], correct: 2 },
+            { q: "After `group_by()`, which verb is typically used to aggregate?", options: ["filter()", "select()", "mutate()", "summarise()"], correct: 3 },
+            { q: "What does `summarise(df, n = n(), .groups = 'drop')` do?", options: ["Counts rows and drops grouping", "Counts rows and keeps grouping", "Errors", "Drops all rows"], correct: 0 },
+            { q: "Which verb would you use to compute the mean of `x` for each `category`?", options: ["group_by(category) %>% summarise(mean_x = mean(x))", "filter(category) %>% mean(x)", "select(category, x)", "arrange(category, mean(x))"], correct: 0 },
+            { q: "What does `n_distinct(x)` return inside `summarise()`?", options: ["Number of unique values in x", "Number of rows", "Number of missing values", "Sum of x"], correct: 0 },
+            { q: "Can you use `mutate()` after `group_by()`?", options: ["Yes, it operates per group", "No, only summarise works", "Only with `across()`", "Only for counting"], correct: 0 },
+            { q: "What does `summarise(df, total = sum(x))` do if not grouped?", options: ["Returns one row with total", "Returns total for each row", "Returns empty", "Error"], correct: 0 },
+
+            // 31-40 : pipes & combinations
+            { q: "What is the pipe operator in classic dplyr style?", options: ["%>%", "|>", "->", "=>"], correct: 0 },
+            { q: "What does the pipe `%>%` do?", options: ["Assigns a variable", "Chains operations", "Filters rows", "Groups data"], correct: 1 },
+            { q: "Which is the native R pipe (R ≥ 4.1)?", options: ["%>%", "|>", "->", ">>"], correct: 1 },
+            { q: "What does `df %>% filter(x > 1) %>% select(y)` return?", options: ["Rows with x>1, only column y", "All columns, rows x>1", "Only rows x>1, all columns", "Error"], correct: 0 },
+            { q: "Which is a valid dplyr chain?", options: ["df %>% filter(x>1) %>% summarise(n=n())", "df %>% filter(x>1) %>% n()", "df filter(x>1) summarise(n())", "df -> filter(x>1) -> summarise()"], correct: 0 },
+            { q: "What does `%>%` do with the left-hand side?", options: ["Passes it as first argument to the next function", "Assigns it to a variable", "Prints it", "Removes it"], correct: 0 },
+            { q: "Can you use `%>%` with base R functions?", options: ["Yes", "No", "Only with dplyr", "Only with tidyverse"], correct: 0 },
+            { q: "What is the result of `mtcars %>% group_by(cyl) %>% summarise(avg = mean(mpg))`?", options: ["Average mpg per cylinder group", "Average mpg overall", "Error", "Only one row"], correct: 0 },
+            { q: "Which verb would you use to count rows per group?", options: ["summarise(n = n())", "filter(n())", "mutate(n = n())", "select(n())"], correct: 0 },
+            { q: "What does `df %>% arrange(desc(x)) %>% head(5)` do?", options: ["Top 5 rows by x", "Bottom 5 rows by x", "Sorts and shows all rows", "Error"], correct: 0 },
+
+            // 41-50 : mixed & tricky
+            { q: "Which verb would you use to rename columns?", options: ["rename()", "select()", "mutate()", "filter()"], correct: 0 },
+            { q: "What does `select(df, new = old)` do?", options: ["Renames old to new and keeps only it", "Filters old", "Adds new column", "Errors"], correct: 0 },
+            { q: "Which verb would you use to get distinct rows?", options: ["distinct()", "unique()", "filter()", "select()"], correct: 0 },
+            { q: "What does `pull(df, x)` return?", options: ["A vector", "A data frame", "A list", "A summary"], correct: 0 },
+            { q: "Which verb would you use to add a row number?", options: ["mutate(row = row_number())", "filter(row_number())", "select(row_number())", "arrange(row_number())"], correct: 0 },
+            { q: "What does `across()` do inside `mutate()` or `summarise()`?", options: ["Applies a function to multiple columns", "Filters across rows", "Groups across columns", "Sorts across columns"], correct: 0 },
+            { q: "What does `summarise(across(where(is.numeric), mean))` do?", options: ["Means of all numeric columns", "Means of all columns", "Error", "Only first numeric column"], correct: 0 },
+            { q: "Which verb would you use to slice rows by position?", options: ["slice()", "filter()", "select()", "arrange()"], correct: 0 },
+            { q: "What does `slice(df, 1:5)` do?", options: ["First 5 rows", "Last 5 rows", "Rows 1 and 5", "Error"], correct: 0 },
+            { q: "Which is NOT a dplyr verb?", options: ["filter()", "select()", "mutate()", "subset()"], correct: 3 }
+        ];
+
+        // ---------- state ----------
+        let currentIndex = 0;                // 0-based index of current question
+        let userAnswers = new Array(questions.length).fill(null); // store selected option index
+
+        // ---------- DOM refs ----------
+        const quizContainer = document.getElementById('quizContainer');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetQuiz');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+
+        // ---------- render current question ----------
+        function renderCurrentQuestion() {
+            const idx = currentIndex;
+            const q = questions[idx];
+            const qNum = idx + 1;
+            const selectedOpt = userAnswers[idx]; // null if unanswered
+
+            const optionsHtml = q.options.map((opt, optIdx) => {
+                const radioId = `q${idx}_opt${optIdx}`;
+                const checked = (selectedOpt === optIdx) ? 'checked' : '';
+                return `
+                    <div class="option" data-qidx="${idx}" data-optidx="${optIdx}">
+                        <input type="radio" name="q${idx}" id="${radioId}" value="${optIdx}" ${checked}>
+                        <label for="${radioId}">${opt}</label>
+                    </div>
+                `;
+            }).join('');
+
+            const cardHtml = `
+                <div class="question-card" id="questionCard">
+                    <div class="q-progress">Question ${qNum} of ${questions.length}</div>
+                    <div class="q-text">
+                        <span class="q-num">Q${qNum}</span>
+                        <span>${q.q}</span>
+                    </div>
+                    <div class="options" id="optionsContainer">
+                        ${optionsHtml}
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            `;
+
+            quizContainer.innerHTML = cardHtml;
+
+            // Attach event listeners to the new radios
+            quizContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const qIdx = parseInt(this.name.substring(1), 10);
+                    const optIdx = parseInt(this.value, 10);
+                    userAnswers[qIdx] = optIdx;
+                    // Clear feedback on selection
+                    const fb = document.getElementById('feedback');
+                    if (fb) {
+                        fb.textContent = '';
+                        fb.className = 'feedback';
+                    }
+                    const card = document.getElementById('questionCard');
+                    if (card) {
+                        card.classList.remove('correct-highlight', 'wrong-highlight');
+                    }
+                });
+            });
+
+            // Also make the whole option div clickable
+            quizContainer.querySelectorAll('.option').forEach(div => {
+                div.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'INPUT') return; // let radio handle
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio && !radio.checked) {
+                        radio.checked = true;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        radio.dispatchEvent(changeEvent);
+                    }
+                });
+            });
+
+            // Update the Next button label and state
+            updateNextButton();
+            updateScoreDisplay();
+        }
+
+        // Update Next button text based on current index
+        function updateNextButton() {
+            if (currentIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish ✓';
+                nextBtn.classList.add('btn-primary');
+            } else {
+                nextBtn.textContent = 'Next →';
+                nextBtn.classList.remove('btn-primary');
+            }
+        }
+
+        // Update the score display (shows current score after finishing)
+        function updateScoreDisplay() {
+            // if we are at the end and user finished, show score
+            if (currentIndex === questions.length - 1) {
+                // if already answered last, maybe show current count? we'll show "—" until finish clicked
+            }
+            // Default show nothing or current count? We'll show '—' unless finished
+            if (scoreDisplay.textContent === '— / 50' || scoreDisplay.textContent.includes('—')) {
+                // keep
+            }
+        }
+
+        // ---------- calculate & show final score ----------
+        function showFinalScore() {
+            let correctCount = 0;
+            questions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) correctCount++;
+            });
+            scoreDisplay.textContent = `${correctCount} / ${questions.length}`;
+            scoreDisplay.classList.add('completed');
+
+            // Show feedback on the last question card (optional)
+            const fb = document.getElementById('feedback');
+            if (fb) {
+                const lastIdx = questions.length - 1;
+                const userAns = userAnswers[lastIdx];
+                const q = questions[lastIdx];
+                if (userAns === null) {
+                    fb.textContent = '⚠️ Not answered';
+                    fb.className = 'feedback';
+                } else if (userAns === q.correct) {
+                    fb.textContent = `✅ Correct! (${q.options[q.correct]})`;
+                    fb.className = 'feedback correct';
+                } else {
+                    fb.textContent = `❌ Incorrect. Correct answer: ${q.options[q.correct]}`;
+                    fb.className = 'feedback wrong';
+                }
+                const card = document.getElementById('questionCard');
+                if (card) {
+                    card.classList.remove('correct-highlight', 'wrong-highlight');
+                    if (userAns !== null) {
+                        if (userAns === q.correct) card.classList.add('correct-highlight');
+                        else card.classList.add('wrong-highlight');
+                    }
+                }
+            }
+
+            // Disable Next button after finishing
+            nextBtn.disabled = true;
+        }
+
+        // ---------- reset ----------
+        function resetQuiz() {
+            userAnswers.fill(null);
+            currentIndex = 0;
+            scoreDisplay.textContent = '— / 50';
+            scoreDisplay.classList.remove('completed');
+            nextBtn.disabled = false;
+            renderCurrentQuestion();
+        }
+
+        // ---------- Next handler ----------
+        function handleNext() {
+            // If at last question, clicking Next should show final score
+            if (currentIndex === questions.length - 1) {
+                // Show final score (if not already shown)
+                if (!scoreDisplay.classList.contains('completed')) {
+                    showFinalScore();
+                } else {
+                    // If already completed, maybe do nothing or still show feedback? We'll keep it.
+                }
+                return;
+            }
+
+            // Optional: warn if unanswered? Not required, but we can proceed.
+            // Move to next question
+            currentIndex++;
+            renderCurrentQuestion();
+        }
+
+        // ---------- event listeners ----------
+        nextBtn.addEventListener('click', handleNext);
+        resetBtn.addEventListener('click', resetQuiz);
+
+        // ---------- initial render ----------
+        renderCurrentQuestion();
+        scoreDisplay.textContent = '— / 50';
+    })();
+</script>
+</body>
+</html>
